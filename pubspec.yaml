@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.15.0
+  firebase_core: ^2.10.0  # Atualizar para a versão mais recente
+  firebase_auth: ^4.11.0  # Atualizar para uma versão mais recente que é compatível com firebase_core
   cloud_firestore: ^4.8.0
 
 dev_dependencies:

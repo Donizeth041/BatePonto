@@ -1,46 +1,64 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'home_screen.dart';  // Para onde o usuário será redirecionado após o login
+import 'funcionario_home.dart';  // Para o funcionário
 
-class LoginScreen extends StatelessWidget {
+Future<void> login(String email, String senha) async {
+  try {
+    // Realiza a autenticação do usuário
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: senha,
+    );
+
+    // Obtém a referência do Firestore para a coleção de usuários
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('usuarios').doc(userCredential.user!.uid).get();
+    
+    // Verifica o tipo de usuário
+    String tipoUsuario = userDoc['tipo'];  // 'admin' ou 'funcionario'
+
+    // Redireciona com base no tipo de usuário
+    if (tipoUsuario == 'admin') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()), // Tela do admin
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => FuncionarioHome()), // Tela do funcionário
+      );
+    }
+  } catch (e) {
+    print('Erro no login: $e');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Login', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.blue,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        title: Text('Login'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.login, color: Colors.blue, size: 100),
             TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(color: Colors.black),
-              ),
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
+              controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                labelStyle: TextStyle(color: Colors.black),
-              ),
+              decoration: InputDecoration(labelText: 'Senha'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Ação de login
-              },
-              child: Text('Login', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              onPressed: _login,
+              child: Text('Login'),
             ),
           ],
         ),

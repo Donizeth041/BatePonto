@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'Telas/login.dart';
 import 'Telas/register.dart';
 import 'Telas/profile.dart';
 import 'Telas/historico.dart';
 import 'Telas/ponto.dart';
 import 'Telas/pesquisa.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Bate-Ponto',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -40,18 +41,18 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tela Principal'),
+        title: const Text('Tela Principal'),
         backgroundColor: Colors.blue,
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.blue,
               ),
-              child: Text(
+              child: const Text(
                 'Menu',
                 style: TextStyle(
                   color: Colors.white,
@@ -59,65 +60,59 @@ class MainScreen extends StatelessWidget {
                 ),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.login, color: Colors.blue),
-              title: Text('Login'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.login,
+              text: 'Login',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.person_add, color: Colors.blue),
-              title: Text('Cadastrar'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.person_add,
+              text: 'Cadastrar',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RegisterScreen()),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.person, color: Colors.blue),
-              title: Text('Perfil'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfileScreen()),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.person,
+              text: 'Perfil',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileScreen()),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.history, color: Colors.blue),
-              title: Text('Histórico'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HistoricoScreen()),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.history,
+              text: 'Histórico',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HistoricoScreen()),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.access_time, color: Colors.blue),
-              title: Text('Bater Ponto'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PontoScreen()),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.access_time,
+              text: 'Bater Ponto',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PontoScreen()),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.search, color: Colors.blue),
-              title: Text('Pesquisar'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PesquisaScreen()),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.search,
+              text: 'Pesquisar',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PesquisaScreen()),
+              ),
             ),
           ],
         ),
@@ -126,8 +121,8 @@ class MainScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Bem-vindo ao sistema de bate-ponto!'),
-            SizedBox(height: 20),
+            const Text('Bem-vindo ao sistema de bate-ponto!'),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -135,9 +130,9 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => LoginScreen()),
                 );
               },
-              child: Text('Login'),
+              child: const Text('Login'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -145,11 +140,22 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => RegisterScreen()),
                 );
               },
-              child: Text('Registrar'),
+              child: const Text('Registrar'),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context,
+      {required IconData icon,
+      required String text,
+      required VoidCallback onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.blue),
+      title: Text(text),
+      onTap: onTap,
     );
   }
 }

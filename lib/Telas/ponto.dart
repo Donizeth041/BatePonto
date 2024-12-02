@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importando o Firestore
 
 class PontoScreen extends StatefulWidget {
   @override
@@ -7,6 +8,24 @@ class PontoScreen extends StatefulWidget {
 
 class _PontoScreenState extends State<PontoScreen> {
   bool pontoAberto = false;
+
+  // Função para registrar o ponto no Firestore
+  Future<void> registrarPonto(bool aberto) async {
+    try {
+      // Referência da coleção 'pontos'
+      CollectionReference pontos =
+          FirebaseFirestore.instance.collection('pontos');
+
+      // Criando o documento com os dados
+      await pontos.add({
+        'data_ponto': Timestamp.now(), // Data e hora do ponto
+        'status': aberto ? 'aberto' : 'fechado', // Status do ponto
+      });
+      print('Ponto registrado com sucesso!');
+    } catch (e) {
+      print('Erro ao registrar o ponto: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +51,8 @@ class _PontoScreenState extends State<PontoScreen> {
                       setState(() {
                         pontoAberto = false;
                       });
-                      // Lógica para fechar ponto
+                      // Registrar o fechamento do ponto
+                      registrarPonto(false);
                     },
                     child: Text('Fechar Ponto',
                         style: TextStyle(color: Colors.white)),
@@ -44,7 +64,8 @@ class _PontoScreenState extends State<PontoScreen> {
                       setState(() {
                         pontoAberto = true;
                       });
-                      // Lógica para abrir ponto
+                      // Registrar a abertura do ponto
+                      registrarPonto(true);
                     },
                     child: Text('Abrir Ponto',
                         style: TextStyle(color: Colors.white)),

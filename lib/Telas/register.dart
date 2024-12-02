@@ -1,64 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _tipoController =
+      TextEditingController(); // Campo para 'admin' ou 'funcionario'
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Função de registro
+  Future<void> _register() async {
+    try {
+      // Criar usuário no Firebase Authentication
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // Salvar dados do usuário no Firestore
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(userCredential.user!.uid)
+          .set({
+        'email': _emailController.text,
+        'senha': _passwordController
+            .text, // Embora não seja ideal armazenar senha em texto claro
+        'tipo': _tipoController.text, // Pode ser 'admin' ou 'funcionario'
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Usuário registrado com sucesso!'),
+      ));
+
+      // Redirecionar para a tela de login após cadastro
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      print('Erro ao registrar usuário: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Falha no registro!'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title:
-            Text('Cadastro de Usuário', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.blue,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        title: Text('Registrar'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              decoration: InputDecoration(
-                labelText: 'Nome',
-                labelStyle: TextStyle(color: Colors.black),
-              ),
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(color: Colors.black),
-              ),
-            ),
-            TextField(
+              controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                labelStyle: TextStyle(color: Colors.black),
-              ),
+              decoration: InputDecoration(labelText: 'Senha'),
             ),
-            DropdownButton<String>(
-              hint: Text('Selecione o Tipo de Usuário'),
-              items:
-                  <String>['Administrador', 'Funcionário'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (_) {
-                // Ação ao selecionar tipo de usuário
-              },
+            TextField(
+              controller: _tipoController,
+              decoration:
+                  InputDecoration(labelText: 'Tipo (admin/funcionario)'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Ação de cadastro
-              },
-              child: Text('Cadastrar', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              onPressed: _register,
+              child: Text('Registrar'),
             ),
           ],
         ),

@@ -1,6 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class HistoricoScreen extends StatelessWidget {
+class HistoricoScreen extends StatefulWidget {
+  @override
+  _HistoricoScreenState createState() => _HistoricoScreenState();
+}
+
+class _HistoricoScreenState extends State<HistoricoScreen> {
+  String tipoUsuario = ''; // Vai armazenar o tipo de usuário
+
+  // Função para verificar o tipo de usuário
+  Future<void> verificarTipoUsuario() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(user.uid)
+          .get();
+      setState(() {
+        tipoUsuario = userDoc['tipo']; // 'admin' ou 'funcionario'
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    verificarTipoUsuario();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,23 +45,69 @@ class HistoricoScreen extends StatelessWidget {
           },
         ),
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            title: Text('Entrada: 2024-10-01 08:00',
-                style: TextStyle(color: Colors.black)),
-            subtitle: Text('Saída: 2024-10-01 17:00',
-                style: TextStyle(color: Colors.black)),
-          ),
-          ListTile(
-            title: Text('Entrada: 2024-10-02 08:15',
-                style: TextStyle(color: Colors.black)),
-            subtitle: Text('Saída: 2024-10-02 16:45',
-                style: TextStyle(color: Colors.black)),
-          ),
-          // Adicione mais registros de ponto aqui
-        ],
-      ),
+      body: tipoUsuario == 'admin'
+          ? // Exibe todos os pontos para admin
+          StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('pontos').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('Nenhum ponto registrado.'));
+                }
+
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var ponto = snapshot.data!.docs[index];
+                    return ListTile(
+                      title: Text('Entrada: ${ponto['data_ponto']}'),
+                      subtitle: Text('Status: ${ponto['status']}'),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          FirebaseFirestore.instance
+                              .collection('pontos')
+                              .doc(ponto.id)
+                              .delete();
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            )
+          : // Exibe apenas os pontos do usuário logado para o funcionário
+          StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('pontos')
+                  .where('uid',
+                      isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('Nenhum ponto registrado.'));
+                }
+
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var ponto = snapshot.data!.docs[index];
+                    return ListTile(
+                      title: Text('Entrada: ${ponto['data_ponto']}'),
+                      subtitle: Text('Status: ${ponto['status']}'),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }
