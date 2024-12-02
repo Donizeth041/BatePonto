@@ -27,7 +27,7 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
   @override
   void initState() {
     super.initState();
-    verificarTipoUsuario();
+    verificarTipoUsuario(); // Chama a função para verificar o tipo de usuário
   }
 
   @override
@@ -45,69 +45,74 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
           },
         ),
       ),
-      body: tipoUsuario == 'admin'
-          ? // Exibe todos os pontos para admin
-          StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance.collection('pontos').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+      body: tipoUsuario.isEmpty // Verifica se o tipoUsuario está vazio
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Exibe o loading enquanto carrega
+          : tipoUsuario == 'admin'
+              // Exibe todos os pontos para admin
+              ? StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('pontos')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('Nenhum ponto registrado.'));
-                }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return Center(child: Text('Nenhum ponto registrado.'));
+                    }
 
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var ponto = snapshot.data!.docs[index];
-                    return ListTile(
-                      title: Text('Entrada: ${ponto['data_ponto']}'),
-                      subtitle: Text('Status: ${ponto['status']}'),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          FirebaseFirestore.instance
-                              .collection('pontos')
-                              .doc(ponto.id)
-                              .delete();
-                        },
-                      ),
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var ponto = snapshot.data!.docs[index];
+                        return ListTile(
+                          title: Text('Entrada: ${ponto['data_ponto']}'),
+                          subtitle: Text('Status: ${ponto['status']}'),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              FirebaseFirestore.instance
+                                  .collection('pontos')
+                                  .doc(ponto.id)
+                                  .delete();
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            )
-          : // Exibe apenas os pontos do usuário logado para o funcionário
-          StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('pontos')
-                  .where('uid',
-                      isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+                )
+              : // Exibe apenas os pontos do usuário logado para o funcionário
+              StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('pontos')
+                      .where('uid',
+                          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('Nenhum ponto registrado.'));
-                }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return Center(child: Text('Nenhum ponto registrado.'));
+                    }
 
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var ponto = snapshot.data!.docs[index];
-                    return ListTile(
-                      title: Text('Entrada: ${ponto['data_ponto']}'),
-                      subtitle: Text('Status: ${ponto['status']}'),
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var ponto = snapshot.data!.docs[index];
+                        return ListTile(
+                          title: Text('Entrada: ${ponto['data_ponto']}'),
+                          subtitle: Text('Status: ${ponto['status']}'),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
     );
   }
 }

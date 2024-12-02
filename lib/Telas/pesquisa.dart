@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PesquisaScreen extends StatelessWidget {
+class PesquisaScreen extends StatefulWidget {
+  @override
+  _PesquisaScreenState createState() => _PesquisaScreenState();
+}
+
+class _PesquisaScreenState extends State<PesquisaScreen> {
+  TextEditingController _searchController = TextEditingController();
+  List<DocumentSnapshot> _funcionarios = [];
+
+  // Função para buscar funcionários no Firestore
+  void _searchFuncionarios(String nome) async {
+    // Realiza a busca no Firestore
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .where('name', isGreaterThanOrEqualTo: nome)
+        .where('name', isLessThan: nome + 'z')
+        .get();
+
+    setState(() {
+      _funcionarios = snapshot.docs;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,32 +43,25 @@ class PesquisaScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Pesquisar Nome',
                 labelStyle: TextStyle(color: Colors.black),
               ),
-              onChanged: (value) {
-                // Lógica de busca
-              },
+              onChanged: _searchFuncionarios,
             ),
           ),
           Expanded(
-            child: ListView(
-              children: [
-                ListTile(
-                  title: Text('Nome: João Silva',
-                      style: TextStyle(color: Colors.black)),
-                  subtitle: Text('Último Ponto: 2024-10-01 17:00',
-                      style: TextStyle(color: Colors.black)),
-                ),
-                ListTile(
-                  title: Text('Nome: Maria Souza',
-                      style: TextStyle(color: Colors.black)),
-                  subtitle: Text('Último Ponto: 2024-10-02 16:45',
-                      style: TextStyle(color: Colors.black)),
-                ),
-                // Adicione mais funcionários aqui
-              ],
+            child: ListView.builder(
+              itemCount: _funcionarios.length,
+              itemBuilder: (context, index) {
+                var funcionario = _funcionarios[index];
+                return ListTile(
+                  title: Text(funcionario['name']),
+                  subtitle: Text(
+                      'Último Ponto: 2024-10-01 17:00'), // Pode adicionar o timestamp do ponto aqui
+                );
+              },
             ),
           ),
         ],
