@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // Para onde o usuário será redirecionado após o login
+import 'home_screen.dart'; // Para o admin
 import 'funcionario_home.dart'; // Para o funcionário
-import 'ponto.dart'; // Para a tela de bater ponto (adicionar importação)
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -34,12 +33,20 @@ class _LoginScreenState extends State<LoginScreen> {
       // Verifica o tipo de usuário
       String tipoUsuario = userDoc['tipo']; // 'admin' ou 'funcionario'
 
-      // Redireciona para a tela de Bater Ponto após o login, independente do tipo
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => PontoScreen()), // Tela de Bater Ponto
-      );
+      // Redireciona para a tela de Bater Ponto após o login, dependendo do tipo de usuário
+      if (tipoUsuario == 'admin') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeScreen()), // Tela do admin
+        );
+      } else if (tipoUsuario == 'funcionario') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => FuncionarioHome()), // Tela do funcionário
+        );
+      }
     } catch (e) {
       print('Erro no login: $e');
       ScaffoldMessenger.of(context).showSnackBar(
