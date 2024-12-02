@@ -5,8 +5,20 @@ import 'Telas/profile.dart';
 import 'Telas/historico.dart';
 import 'Telas/ponto.dart';
 import 'Telas/pesquisa.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyCQsGNTsmwifj06uEE1m7mbrU1Qf4u2STA",
+      authDomain: "bate-ponto-fa7a1.firebaseapp.com",
+      projectId: "bate-ponto-fa7a1",
+      storageBucket: "bate-ponto-fa7a1.appspot.com",
+      messagingSenderId: "821347773206",
+      appId: "1:821347773206:web:87975141e0e0f2963dfe37",
+    ),
+  );
   runApp(MyApp());
 }
 
