@@ -1,33 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatelessWidget {
-  // Função de logout
-  Future<void> _logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(
-        context, '/login'); // Redireciona para a tela de login
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tela Principal'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _logout(context),
-          ),
-        ],
+        title: Text('Página Inicial'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navegar para a tela de Bater Ponto
-            Navigator.pushReplacementNamed(context, '/ponto');
-          },
-          child: Text('Ir para Bater Ponto'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Bem-vindo à página inicial!',
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Aqui você pode adicionar a navegação para outras telas, como o menu do funcionário
+                Navigator.pushNamed(context, '/funcionario_home');
+              },
+              child: Text('Ir para Home Funcionário'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Aqui você pode adicionar a navegação para o menu do administrador
+                Navigator.pushNamed(context, '/menu_adm');
+              },
+              child: Text('Ir para Menu Administrador'),
+            ),
+          ],
         ),
       ),
     );
