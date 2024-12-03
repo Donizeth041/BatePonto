@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../telas/home_screen.dart';
-import '../telas/funcionario_home.dart';
-import '../telas/menu_adm.dart';
-import '../telas/perfil_page.dart';
-import '../telas/bater_ponto_page.dart';
-import '../telas/historico_page.dart';
-import '../telas/register_user_page.dart';
+import 'telas/home_screen.dart';
+import 'telas/funcionario_home.dart';
+import 'telas/menu_adm.dart';
+import 'telas/perfil_page.dart';
+import 'telas/bater_ponto_page.dart';
+import 'telas/historico_page.dart';
+import 'telas/register_user_page.dart';
 
 void main() {
   runApp(MyApp());
